@@ -1,7 +1,11 @@
 import streamlit as st
+from src.constants import MAX_COMMENTS
 
 def render_sidebar(df):
     st.sidebar.markdown("## 🔧 Filters")
+    
+    if len(df) >= MAX_COMMENTS:
+        st.sidebar.warning(f"Showing the latest {MAX_COMMENTS} comments to ensure smooth performance on Streamlit Cloud.")
 
     all_topics_list = sorted(df["Post Title"].astype(str).unique().tolist())
     selected_topics = st.sidebar.multiselect("Post / Topic", all_topics_list, default=[], placeholder="All topics")

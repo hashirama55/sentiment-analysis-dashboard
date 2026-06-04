@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 from src.logic.classifiers import score_comments_batch, classify_intent, classify_topic, detect_language
-from src.constants import DEFAULT_CHUNK_SIZE
+from src.constants import DEFAULT_CHUNK_SIZE, MAX_COMMENTS
 
 @st.cache_data(show_spinner=False)
 def load_data(path: str) -> pd.DataFrame:
@@ -17,6 +17,9 @@ def load_data(path: str) -> pd.DataFrame:
     
     # Filter for dates starting from 2026
     df = df[df["Date"].dt.year >= 2026].copy()
+    
+    # Sort and limit to avoid Streamlit Cloud timeouts
+    df = df.sort_values("Date", ascending=False).head(MAX_COMMENTS).copy()
 
     df["YearMonth"] = df["Date"].dt.strftime("%Y-%m")
     df["DateOnly"]  = df["Date"].dt.date
