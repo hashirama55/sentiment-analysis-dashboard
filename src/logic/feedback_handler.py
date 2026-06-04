@@ -2,7 +2,9 @@ import pandas as pd
 import os
 from datetime import datetime
 
-FEEDBACK_FILE = "data/feedback/corrections.csv"
+# Path relative to project root
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FEEDBACK_FILE = os.path.join(BASE_DIR, "data", "feedback", "corrections.csv")
 
 def save_feedback(comment, original_label, corrected_label, classification_type):
     """

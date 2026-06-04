@@ -20,7 +20,8 @@ def get_transformer_pipeline():
     global _sentiment_pipeline
     if _sentiment_pipeline is None:
         # Prioritize locally fine-tuned model if it exists
-        refined_path = "models/sentiment_refined"
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        refined_path = os.path.join(base_dir, "models", "sentiment_refined")
         if os.path.exists(refined_path):
             model_name = refined_path
             print(f"Loading REFINED model from {refined_path}")

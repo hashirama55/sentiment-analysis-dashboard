@@ -11,9 +11,10 @@ from sklearn.model_selection import train_test_split
 import os
 
 # Configuration
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASE_MODEL = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
-FEEDBACK_FILE = "data/feedback/corrections.csv"
-OUTPUT_DIR = "models/sentiment_refined"
+FEEDBACK_FILE = os.path.join(BASE_DIR, "data", "feedback", "corrections.csv")
+OUTPUT_DIR = os.path.join(BASE_DIR, "models", "sentiment_refined")
 
 class SentimentDataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels):
