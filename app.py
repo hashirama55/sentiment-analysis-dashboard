@@ -1,5 +1,10 @@
 import streamlit as st
 import os
+import sys
+
+# Ensure the root directory is in sys.path for absolute imports
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from src.logic.data_loader import load_data
 from src.ui.styles import apply_custom_styles
 from src.ui.sidebar import render_sidebar
@@ -23,8 +28,7 @@ st.set_page_config(
 apply_custom_styles()
 
 # Load Data
-base_dir = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(base_dir, "data.xlsx")
+data_path = "data.xlsx"
 df = load_data(data_path)
 
 # Render Sidebar

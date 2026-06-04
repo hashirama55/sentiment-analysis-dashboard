@@ -33,16 +33,16 @@ A specialized Streamlit dashboard for analyzing Facebook comment sentiment, inte
    ```
 
 3. **Install dependencies:**
-   ```bash
-   pip install -r files/requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## 🏃 Running the App
 
 To start the dashboard, run the following command from the project root:
 
 ```bash
-streamlit run files/app.py
+streamlit run app.py
 ```
 
 ## 🧠 Pipeline Details

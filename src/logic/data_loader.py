@@ -38,11 +38,12 @@ def load_data(path: str) -> pd.DataFrame:
         chunk = df.iloc[i : i + DEFAULT_CHUNK_SIZE].copy()
         
         # Update progress UI
-        progress_val = min((chunk_idx) / num_chunks, 1.0)
-        percentage = int(progress_val * 100)
-        with progress_container.container():
-            st.markdown(f"### 🔄 Analysing comments... {percentage}%")
-            st.progress(progress_val)
+        if num_chunks > 0:
+            progress_val = min((chunk_idx) / num_chunks, 1.0)
+            percentage = int(progress_val * 100)
+            with progress_container.container():
+                st.markdown(f"### 🔄 Analysing comments... {percentage}%")
+                st.progress(progress_val)
         
         # Sentiment (Batch)
         comments = chunk["Comment"].tolist()
