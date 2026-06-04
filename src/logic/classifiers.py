@@ -116,7 +116,7 @@ def score_comments_batch(texts: list[str]) -> list[dict]:
         
         batch_results = [None] * len(texts)
         if non_empty_texts:
-            pipe_res = pipe(non_empty_texts, batch_size=len(non_empty_texts), truncation=True)
+            pipe_res = pipe(non_empty_texts, batch_size=16, truncation=True)
             for idx, res in zip(non_empty_indices, pipe_res):
                 batch_results[idx] = res
                 

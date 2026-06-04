@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import gc
 from src.logic.classifiers import score_comments_batch, classify_intent, classify_topic, detect_language
 from src.constants import DEFAULT_CHUNK_SIZE, MAX_COMMENTS
 
@@ -59,6 +60,7 @@ def load_data(path: str) -> pd.DataFrame:
         chunk["language"] = chunk["Comment"].apply(detect_language)
         
         all_chunks.append(chunk)
+        gc.collect() # Help free memory between batches
         
     progress_container.empty()
     df = pd.concat(all_chunks)

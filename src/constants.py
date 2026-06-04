@@ -147,8 +147,8 @@ TOPIC_PATTERNS = {
     ],
 }
 
-DEFAULT_CHUNK_SIZE = 400
-MAX_COMMENTS = 1500
+DEFAULT_CHUNK_SIZE = 50
+MAX_COMMENTS = 800
 
 STOP_WORDS = {
     "the","and","to","a","of","is","in","i","my","it","this","that","for","are",
