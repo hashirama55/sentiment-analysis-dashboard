@@ -1,0 +1,14 @@
+timestamp,comment,classification_type,original_label,corrected_label
+2026-05-26 20:28:57,Netone tinyareiwo imi..... Uka juicer uchida kuisa data unozoona waroverwa tuma cents. So kuti uise 15gig data unotoda $16 instead of $15 whats that. Ko ma cents amukungoroca from noway ndeeyi????NetOne,sentiment,neutral,negative
+2026-05-26 20:29:56,Netone Huchi,intent,inquiry,praise
+2026-05-26 20:31:40,#Netone#NetoneKuVanhu#NetoneKuNyika #NetoneZimbabwe #MunhuWeseKuNetone,intent,inquiry,praise
+2026-05-26 20:32:42,"Handina remuromo nemi and you have disappointed me ,I bought $15 data on Friday and by Saturday mange mawe ne0.00,chero zvikanzi ndinoshandisa data haa apa mandikona henyu",intent,inquiry,complaint
+2026-05-27 22:29:22,Unlimited data is good econet is providing unlimited for 4 usd per month going up you can do that also it good,topic,general,billing
+2026-05-27 22:29:29,Unlimited data is good econet is providing unlimited for 4 usd per month going up you can do that also it good,topic,general,billing
+2026-05-27 22:29:35,Unlimited data is good econet is providing unlimited for 4 usd per month going up you can do that also it good,sentiment,positive,negative
+2026-05-27 22:34:35,Mandevele nhasi ndezvenyu,topic,general,support
+2026-05-27 22:35:08,Mandevele nhasi ndezvenyu,sentiment,negative,neutral
+2026-05-27 22:35:58,Mandevele nhasi ndezvenyu,sentiment,negative,neutral
+2026-05-27 22:37:16,"Tokumbirawo data rakati chipei sere smart 4 u musaomere Ingawani mava ne makore muchingodyawo ma usd edu, vamasiiwa vakashinga kutipa smart4u.",topic,general,billing
+2026-05-27 22:37:22,"Tokumbirawo data rakati chipei sere smart 4 u musaomere Ingawani mava ne makore muchingodyawo ma usd edu, vamasiiwa vakashinga kutipa smart4u.",intent,inquiry,complaint
+2026-05-27 22:37:30,"Tokumbirawo data rakati chipei sere smart 4 u musaomere Ingawani mava ne makore muchingodyawo ma usd edu, vamasiiwa vakashinga kutipa smart4u.",sentiment,positive,negative
