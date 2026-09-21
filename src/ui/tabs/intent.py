@@ -4,6 +4,10 @@ import plotly.graph_objects as go
 from src.ui.components import render_metric_card
 
 def render_intent_tab(fdf, granularity="Month"):
+    if fdf is None or len(fdf) == 0:
+        st.warning("No comments match the current filters.")
+        return
+
     ic = fdf["intent"].value_counts()
     total_i = len(fdf)
     i1,i2,i3,i4 = st.columns(4)
@@ -26,7 +30,7 @@ def render_intent_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=320,
                           legend=dict(orientation="h",y=-0.15), margin=dict(t=5,b=5,l=5,r=5))
         fig.update_traces(textfont_color="#ccd6f6")
-        st.plotly_chart(fig, use_container_width=True, key="intent_distribution_pie")
+        st.plotly_chart(fig, key="intent_distribution_pie")
 
     with ib:
         st.markdown(f'<p class="section-header">{granularity}ly Intent Trend</p>', unsafe_allow_html=True)
@@ -38,7 +42,7 @@ def render_intent_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=280, legend_title_text="",
                           xaxis=dict(gridcolor="#2a2f45", tickangle=-30, title=granularity),
                           yaxis=dict(gridcolor="#2a2f45"), margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="intent_trend_line")
+        st.plotly_chart(fig, key="intent_trend_line")
 
     ic2, ic3 = st.columns(2)
     with ic2:
@@ -51,7 +55,7 @@ def render_intent_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=380, yaxis=dict(autorange="reversed"),
                           xaxis=dict(gridcolor="#2a2f45"), legend_title_text="",
                           margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="intent_mix_bar")
+        st.plotly_chart(fig, key="intent_mix_bar")
 
     with ic3:
         st.markdown('<p class="section-header">Complaint Rate by Post (top 12)</p>', unsafe_allow_html=True)
@@ -75,7 +79,7 @@ def render_intent_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=380,
                           xaxis=dict(gridcolor="#2a2f45", title="Complaint %"),
                           margin=dict(t=5,b=5,l=5,r=80))
-        st.plotly_chart(fig, use_container_width=True, key="complaint_rate_bar")
+        st.plotly_chart(fig, key="complaint_rate_bar")
 
     # Sentiment vs intent heatmap
     st.markdown('<p class="section-header">Sentiment × Intent Heatmap</p>', unsafe_allow_html=True)
@@ -88,4 +92,4 @@ def render_intent_tab(fdf, granularity="Month"):
     ))
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                       font_color="#ccd6f6", height=280, margin=dict(t=5,b=5,l=5,r=5))
-    st.plotly_chart(fig, use_container_width=True, key="sentiment_intent_heatmap")
+    st.plotly_chart(fig, key="sentiment_intent_heatmap")

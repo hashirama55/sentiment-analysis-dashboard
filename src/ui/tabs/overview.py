@@ -7,6 +7,10 @@ from src.ui.components import render_metric_card, generate_word_cloud
 from src.constants import STOP_WORDS
 
 def render_overview_tab(fdf, granularity="Month"):
+    if fdf is None or len(fdf) == 0:
+        st.warning("No comments match the current filters.")
+        return
+
     counts  = fdf["sentiment"].value_counts()
     pos, neg, neu = counts.get("positive",0), counts.get("negative",0), counts.get("neutral",0)
     total   = len(fdf)
@@ -29,7 +33,7 @@ def render_overview_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=300, margin=dict(t=5,b=5,l=5,r=5),
                           legend=dict(orientation="h",y=-0.15))
         fig.update_traces(textfont_color="#ccd6f6")
-        st.plotly_chart(fig, use_container_width=True, key="overview_sentiment_pie")
+        st.plotly_chart(fig, key="overview_sentiment_pie")
 
     with cb:
         st.markdown(f'<p class="section-header">{granularity}ly Sentiment Trend</p>', unsafe_allow_html=True)
@@ -41,7 +45,7 @@ def render_overview_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=300, legend_title_text="",
                           xaxis=dict(gridcolor="#2a2f45", tickangle=-30, title=granularity),
                           yaxis=dict(gridcolor="#2a2f45"), margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="overview_sentiment_trend")
+        st.plotly_chart(fig, key="overview_sentiment_trend")
 
     cc, cd = st.columns([2,1])
     with cc:
@@ -54,7 +58,7 @@ def render_overview_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=400, yaxis=dict(autorange="reversed"),
                           xaxis=dict(gridcolor="#2a2f45"), legend_title_text="",
                           margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="overview_top_posts_bar")
+        st.plotly_chart(fig, key="overview_top_posts_bar")
 
     with cd:
         st.markdown('<p class="section-header">Language Breakdown</p>', unsafe_allow_html=True)
@@ -66,7 +70,7 @@ def render_overview_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=400, showlegend=False,
                           coloraxis_showscale=False, yaxis=dict(autorange="reversed"),
                           xaxis=dict(gridcolor="#2a2f45"), margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="overview_lang_bar")
+        st.plotly_chart(fig, key="overview_lang_bar")
 
     # Heatmap
     ce, cf = st.columns([1,1])
@@ -82,13 +86,14 @@ def render_overview_tab(fdf, granularity="Month"):
         fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                           font_color="#ccd6f6", height=320,
                           xaxis=dict(tickangle=-45), margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="overview_activity_heatmap")
+        st.plotly_chart(fig, key="overview_activity_heatmap")
 
     with cf:
         st.markdown('<p class="section-header">Avg Sentiment Score by Post</p>', unsafe_allow_html=True)
         at = fdf.groupby("Post Title")["compound"].agg(["mean","count"]).reset_index()
         at.columns = ["Post Title","avg","n"]
-        at = at[at["n"]>=5].nlargest(15,"n").sort_values("avg")
+        min_n = 5 if (at["n"]>=5).any() else 1
+        at = at[at["n"]>=min_n].nlargest(15,"n").sort_values("avg")
         at["color"] = at["avg"].apply(lambda x: "#00d4aa" if x>=0.05 else "#ff6b6b" if x<=-0.05 else "#ffd166")
         fig = go.Figure(go.Bar(x=at["avg"], y=at["Post Title"], orientation="h",
                                marker_color=at["color"].tolist(),
@@ -97,7 +102,7 @@ def render_overview_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=400,
                           xaxis=dict(gridcolor="#2a2f45", zeroline=True, zerolinecolor="#555"),
                           margin=dict(t=5,b=5,l=5,r=50))
-        st.plotly_chart(fig, use_container_width=True, key="overview_avg_sentiment_bar")
+        st.plotly_chart(fig, key="overview_avg_sentiment_bar")
 
     st.markdown('<p class="section-header">Interactive General Word Cloud (All Topics)</p>', unsafe_allow_html=True)
     all_words = []
@@ -108,6 +113,6 @@ def render_overview_tab(fdf, granularity="Month"):
     top_overall = Counter(all_words).most_common(50)
     if top_overall:
         fig_cloud = generate_word_cloud(top_overall, height=360)
-        st.plotly_chart(fig_cloud, use_container_width=True, key="overview_word_cloud")
+        st.plotly_chart(fig_cloud, key="overview_word_cloud")
     else:
         st.info("No text data available to generate a word cloud.")

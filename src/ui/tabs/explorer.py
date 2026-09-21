@@ -3,6 +3,10 @@ import math
 from src.logic.feedback_handler import save_feedback
 
 def render_explorer_tab(fdf):
+    if fdf is None or len(fdf) == 0:
+        st.warning("No comments match the current filters.")
+        return
+
     # Setup session state for pagination sync
     if 'page_size' not in st.session_state:
         st.session_state.page_size = 50

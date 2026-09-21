@@ -4,6 +4,10 @@ import plotly.graph_objects as go
 import pandas as pd
 
 def render_trend_tab(fdf, granularity="Month"):
+    if fdf is None or len(fdf) == 0:
+        st.warning("No comments match the current filters.")
+        return
+
     st.markdown('<p class="section-header">Daily Comment Volume with Spike Detection</p>', unsafe_allow_html=True)
 
     daily = fdf.groupby("DateOnly").agg(
@@ -19,7 +23,7 @@ def render_trend_tab(fdf, granularity="Month"):
     # Spike detection: days where complaint count > mean + 1.5*std
     mean_c = daily["complaints"].mean()
     std_c  = daily["complaints"].std()
-    spike_threshold = mean_c + 1.5 * std_c
+    spike_threshold = (mean_c + 1.5 * std_c) if (pd.notna(std_c) and std_c > 0) else (mean_c + 1.0)
     daily["is_spike"] = daily["complaints"] > spike_threshold
 
     fig = go.Figure()
@@ -41,12 +45,13 @@ def render_trend_tab(fdf, granularity="Month"):
     ))
     # Spike markers
     spikes = daily[daily["is_spike"]]
-    fig.add_trace(go.Scatter(
-        x=spikes["DateOnly"], y=spikes["complaints"],
-        mode="markers", name="Complaint Spike",
-        marker=dict(color="#ff6b6b", size=10, symbol="star",
-                    line=dict(color="#fff", width=1.5))
-    ))
+    if len(spikes) > 0:
+        fig.add_trace(go.Scatter(
+            x=spikes["DateOnly"], y=spikes["complaints"],
+            mode="markers", name="Complaint Spike",
+            marker=dict(color="#ff6b6b", size=10, symbol="star",
+                        line=dict(color="#fff", width=1.5))
+        ))
     fig.add_hline(y=spike_threshold, line_dash="dash",
                   line_color="rgba(255, 107, 107, 0.27)",
                   annotation_text=f"Spike threshold ({spike_threshold:.0f})",
@@ -57,7 +62,7 @@ def render_trend_tab(fdf, granularity="Month"):
         xaxis=dict(gridcolor="#2a2f45"), yaxis=dict(gridcolor="#2a2f45"),
         margin=dict(t=20,b=5,l=5,r=5)
     )
-    st.plotly_chart(fig, use_container_width=True, key="trend_comment_volume")
+    st.plotly_chart(fig, key="trend_comment_volume")
 
     # Complaint rate line
     tr1, tr2 = st.columns(2)
@@ -70,7 +75,7 @@ def render_trend_tab(fdf, granularity="Month"):
                           xaxis=dict(gridcolor="#2a2f45"),
                           yaxis=dict(gridcolor="#2a2f45", title="Complaint %"),
                           margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="trend_complaint_rate")
+        st.plotly_chart(fig, key="trend_complaint_rate")
 
     with tr2:
         st.markdown('<p class="section-header">7-Day Rolling Avg Sentiment Score</p>', unsafe_allow_html=True)
@@ -88,7 +93,7 @@ def render_trend_tab(fdf, granularity="Month"):
                           xaxis=dict(gridcolor="#2a2f45"),
                           yaxis=dict(gridcolor="#2a2f45", title="Avg Score"),
                           margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="trend_rolling_avg")
+        st.plotly_chart(fig, key="trend_rolling_avg")
 
     # Weekly topic heatmap
     st.markdown(f'<p class="section-header">{granularity}ly Topic Volume Heatmap (potential outage/campaign signals)</p>', unsafe_allow_html=True)
@@ -108,7 +113,7 @@ def render_trend_tab(fdf, granularity="Month"):
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                       font_color="#ccd6f6", height=320,
                       xaxis=dict(tickangle=-45), margin=dict(t=5,b=5,l=5,r=5))
-    st.plotly_chart(fig, use_container_width=True, key="trend_weekly_topic_heatmap")
+    st.plotly_chart(fig, key="trend_weekly_topic_heatmap")
 
     # Spike log
     st.markdown('<p class="section-header">🚨 Detected Complaint Spikes</p>', unsafe_allow_html=True)
@@ -121,9 +126,8 @@ def render_trend_tab(fdf, granularity="Month"):
                 (fdf["intent"] == "complaint")
             ]["Comment"].head(2).tolist()
             sample_text = " · ".join([c[:80]+"…" for c in sample]) if sample else "—"
-            top_topic = fdf[
-                fdf["DateOnly"].astype(str) == str(row["DateOnly"].date())
-            ]["topic"].value_counts().idxmax() if len(fdf[fdf["DateOnly"].astype(str)==str(row["DateOnly"].date())])>0 else "—"
+            matching_topics = fdf[fdf["DateOnly"].astype(str) == str(row["DateOnly"].date())]["topic"]
+            top_topic = matching_topics.value_counts().idxmax() if len(matching_topics) > 0 else "—"
             st.markdown(f"""<div class="spike-card">
                 <span class="spike-date">📅 {row['DateOnly'].strftime('%d %b %Y')}</span>
                 &nbsp;&nbsp;

@@ -8,6 +8,10 @@ from src.ui.components import render_metric_card, generate_word_cloud
 from src.constants import STOP_WORDS
 
 def render_topic_tab(fdf, granularity="Month"):
+    if fdf is None or len(fdf) == 0:
+        st.warning("No comments match the current filters.")
+        return
+
     tc = fdf["topic"].value_counts()
     topic_meta = [
         ("network","📡","#fd79a8"),("billing","💰","#ffeaa7"),
@@ -30,7 +34,7 @@ def render_topic_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=300,
                           legend=dict(orientation="h",y=-0.15), margin=dict(t=5,b=5,l=5,r=5))
         fig.update_traces(textfont_color="#ccd6f6")
-        st.plotly_chart(fig, use_container_width=True, key="topic_distribution_pie")
+        st.plotly_chart(fig, key="topic_distribution_pie")
 
     with tb:
         st.markdown(f'<p class="section-header">{granularity}ly Topic Trend</p>', unsafe_allow_html=True)
@@ -42,7 +46,7 @@ def render_topic_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=300, legend_title_text="",
                           xaxis=dict(gridcolor="#2a2f45", tickangle=-30, title=granularity),
                           yaxis=dict(gridcolor="#2a2f45"), margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="topic_trend_line")
+        st.plotly_chart(fig, key="topic_trend_line")
 
     tc1, tc2 = st.columns(2)
     with tc1:
@@ -56,7 +60,7 @@ def render_topic_tab(fdf, granularity="Month"):
         ))
         fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                           font_color="#ccd6f6", height=300, margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="topic_sentiment_heatmap")
+        st.plotly_chart(fig, key="topic_sentiment_heatmap")
 
     with tc2:
         st.markdown('<p class="section-header">Topic × Intent (Complaints vs Praise)</p>', unsafe_allow_html=True)
@@ -68,7 +72,7 @@ def render_topic_tab(fdf, granularity="Month"):
                           font_color="#ccd6f6", height=300, legend_title_text="",
                           xaxis=dict(gridcolor="#2a2f45"), yaxis=dict(gridcolor="#2a2f45"),
                           margin=dict(t=5,b=5,l=5,r=5))
-        st.plotly_chart(fig, use_container_width=True, key="topic_intent_bar")
+        st.plotly_chart(fig, key="topic_intent_bar")
 
     # Per-topic keyword drilldown
     st.markdown('<p class="section-header">Top Keywords per Topic</p>', unsafe_allow_html=True)
@@ -97,10 +101,10 @@ def render_topic_tab(fdf, granularity="Month"):
                                       yaxis=dict(autorange="reversed"),
                                       xaxis=dict(gridcolor="#2a2f45"),
                                       margin=dict(t=5,b=5,l=5,r=5))
-                    st.plotly_chart(fig, use_container_width=True, key=f"topic_keywords_{topic_name}")
+                    st.plotly_chart(fig, key=f"topic_keywords_{topic_name}")
                 with col_cloud:
                     st.markdown("<p class='section-header' style='font-size:0.95rem;color:#8892b0;margin-bottom:8px;'>Topic Word Cloud</p>", unsafe_allow_html=True)
                     fig_cloud = generate_word_cloud(top_w, height=320)
-                    st.plotly_chart(fig_cloud, use_container_width=True, key=f"topic_cloud_{topic_name}")
+                    st.plotly_chart(fig_cloud, key=f"topic_cloud_{topic_name}")
             else:
                 st.info("No data for this topic in current filter.")

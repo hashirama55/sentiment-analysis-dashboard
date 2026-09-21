@@ -5,8 +5,8 @@ import os
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from src.constants import (
-    SHONA_WORDS, SHONA_POS, SHONA_NEG, 
-    SPAM_KW, COMPLAINT_KW, PRAISE_KW, INQUIRY_KW, 
+    SHONA_WORDS, SHONA_POS, SHONA_NEG,
+    SPAM_KW, COMPLAINT_KW, PRAISE_KW, INQUIRY_KW,
     TOPIC_PATTERNS
 )
 
@@ -29,14 +29,14 @@ def get_transformer_pipeline():
             # Fallback to base distilled multilingual model
             model_name = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
             print(f"Loading BASE model: {model_name}")
-        
+
         # Auto-detect GPU
         device = 0 if torch.cuda.is_available() else -1
         if device == 0:
             print("CUDA detected! Using GPU for inference.")
         else:
             print("Using CPU for inference.")
-            
+
         _sentiment_pipeline = pipeline("sentiment-analysis", model=model_name, device=device)
     return _sentiment_pipeline
 
@@ -52,7 +52,7 @@ def detect_language(text: str) -> str:
 def score_comment(text: str) -> dict:
     if not isinstance(text, str) or not text.strip():
         return {"compound": 0, "label": "neutral", "confidence": 0}
-    
+
     # 1. Transformer Score (Contextual Understanding)
     try:
         pipe = get_transformer_pipeline()
@@ -87,13 +87,13 @@ def score_comment(text: str) -> dict:
 
     adjusted = max(-1.0, min(1.0, adjusted))
     label = "positive" if adjusted >= 0.15 else "negative" if adjusted <= -0.15 else "neutral"
-    
+
     # Final confidence is a mix of model confidence and slang intensity
     final_conf = round(max(t_confidence * 100, abs(adjusted) * 100), 1)
-    
+
     return {
-        "compound": round(adjusted, 4), 
-        "label": label, 
+        "compound": round(adjusted, 4),
+        "label": label,
         "confidence": final_conf
     }
 
@@ -104,22 +104,22 @@ def score_comments_batch(texts: list[str]) -> list[dict]:
     """Processes a batch of texts for sentiment analysis using the transformer pipeline."""
     if not texts:
         return []
-    
+
     # Pre-clean texts and handle empty strings
     cleaned_texts = [str(t)[:512] if isinstance(t, str) and t.strip() else "" for t in texts]
-    
+
     # 1. Transformer Batch Score
     try:
         pipe = get_transformer_pipeline()
         non_empty_indices = [i for i, t in enumerate(cleaned_texts) if t]
         non_empty_texts = [cleaned_texts[i] for i in non_empty_indices]
-        
+
         batch_results = [None] * len(texts)
         if non_empty_texts:
             pipe_res = pipe(non_empty_texts, batch_size=16, truncation=True)
             for idx, res in zip(non_empty_indices, pipe_res):
                 batch_results[idx] = res
-                
+
     except Exception as e:
         print(f"Batch transformer error: {e}")
         batch_results = [None] * len(texts)
@@ -129,7 +129,7 @@ def score_comments_batch(texts: list[str]) -> list[dict]:
         if not isinstance(text, str) or not text.strip():
             final_results.append({"compound": 0, "label": "neutral", "confidence": 0})
             continue
-            
+
         raw_res = batch_results[i]
         if raw_res:
             label_val = {"positive": 1, "neutral": 0, "negative": -1}
@@ -145,7 +145,7 @@ def score_comments_batch(texts: list[str]) -> list[dict]:
         tokens = _TOKEN_RE.findall(text.lower())
         extra = sum(SHONA_POS.get(t, 0) for t in tokens)
         extra += sum(SHONA_NEG.get(t, 0) for t in tokens)
-        
+
         if extra != 0:
             extra_norm = max(-1.0, min(1.0, extra / 5))
             adjusted = (transformer_compound * 0.4) + (extra_norm * 0.6)
@@ -155,13 +155,13 @@ def score_comments_batch(texts: list[str]) -> list[dict]:
         adjusted = max(-1.0, min(1.0, adjusted))
         label = "positive" if adjusted >= 0.15 else "negative" if adjusted <= -0.15 else "neutral"
         final_conf = round(max(t_confidence * 100, abs(adjusted) * 100), 1)
-        
+
         final_results.append({
-            "compound": round(adjusted, 4), 
-            "label": label, 
+            "compound": round(adjusted, 4),
+            "label": label,
             "confidence": final_conf
         })
-        
+
     return final_results
 
 def classify_intent(text: str) -> str:
